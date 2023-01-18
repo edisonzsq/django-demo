@@ -91,6 +91,112 @@ DATABASES = {
 }
 ```
 
-You are ready to implement the code.
+## Setup `rest_framework` module
 
-End.
+Step 1: Install rest framework
+
+```sh
+pip install djangorestframework
+```
+
+Step 2: General a new app call `rest`
+
+```sh
+python manage.py startapp rest
+```
+
+Step 3: Add `rest_framework` to the `INSTALLEd_APPS` of `settings.py`
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'api.apps.ApiConfig',
+    'model.apps.ModelConfig',
+    'rest.apps.RestConfig',
+    'rest_framework'
+]
+```
+
+## Setup JWT Authentication
+
+Step 1: Install dependencies
+
+```sh
+pip install djangorestframework_simplejwt django_extensions
+```
+
+Step 2: Update `settings.py`
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'api.apps.ApiConfig',
+    'model.apps.ModelConfig',
+    'rest.apps.RestConfig',
+    'rest_framework',
+    'django_extensions'
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}
+```
+
+Step 3: Add Serializers
+
+See [serializers.py](./main/rest/serializers.py)
+
+Step 4: Add `RegisterUsersView` Class
+
+See [views.py](./main/rest/views.py)
+
+Step 5: Update `urls.py` in the main project
+
+See [urls.py](./main/main/urls.py)
+
+Step 6: Update Permission for `EmployeeViewSet`
+
+Modify this line `permission_classes = [permissions.IsAuthenticated]`
+
+Now, the rest endpoints require `Authorization Bearer <token>`
