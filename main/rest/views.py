@@ -2,10 +2,9 @@ from django.shortcuts import render
 from model.models import Employee
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
 from .serializers import EmployeeSerializer, UserSerializer
+from django.forms.models import model_to_dict
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
@@ -31,7 +30,12 @@ class RegisterUsersView(generics.ListCreateAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-        new_user = User.objects.create_user(
-            username=username, password=password, email=email
-        )
-        return Response(data=new_user, status=status.HTTP_201_CREATED)
+    
+        try:
+            new_user = User.objects.create_user(
+                username=username, password=password, email=email
+            )
+            return Response(data=model_to_dict(new_user),status=status.HTTP_201_CREATED)
+        except Exception as e:            
+            print(e)
+            return Response(status=status.HTTP_409_CONFLICT)
